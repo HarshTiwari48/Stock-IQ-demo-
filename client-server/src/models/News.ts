@@ -9,26 +9,26 @@ const NewsSchema = new Schema(
       unique: true,
     },
 
-    stock: {
+    stocks: [{
       type: String,
       required: true,
       uppercase: true,
       trim: true,
-    },
+    }],
 
-    category: {
+    domain: {
       type: String,
       required: true,
       trim: true,
     },
 
-    sentiment: {
+    signal: {
       type: String,
       required: true,
       enum: ["BUY", "SELL", "HOLD"],
     },
 
-    confidence: {
+    confidence_score: {
       type: Number,
       required: true,
       min: 0,
@@ -56,10 +56,27 @@ const NewsSchema = new Schema(
       type: Date,
       required: false,
     },
+    sourceUrl: {
+    type: String,
+    required: false,
+    },
+
+    imageUrl: {
+    type: String,
+    required: false,
+    },
+    expiresAt: {
+    type: Date,
+    default: () =>
+    new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    index: { expires: 0 },
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export const News = models.News || model("News", NewsSchema);
+const News = models.News || model("News", NewsSchema);
+
+export default News;
