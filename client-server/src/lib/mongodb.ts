@@ -7,13 +7,20 @@ if (!MONGODB_URI) {
 }
 
 // Global cache (prevents multiple connections in dev)
-let cached = (global as any).mongoose;
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cached = (global as any).mongoose as MongooseCache;
 
 if (!cached) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cached = (global as any).mongoose = { conn: null, promise: null };
 }
 
-export async function connectDB() {
+export default async function connectDB() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
