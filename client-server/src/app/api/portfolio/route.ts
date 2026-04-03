@@ -2,9 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import User    from "@models/User";
-import Portfolio from "@models/Portfolio";
-import News      from "@models/News";
+import User    from "@/models/User";
+import Portfolio from "@/models/Portfolio";
+import News      from "@/models/News";
 
 // GET /api/portfolio — fetch all stocks in user's portfolio
 export async function GET() {

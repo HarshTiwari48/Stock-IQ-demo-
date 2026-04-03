@@ -1,7 +1,7 @@
 import { fetchFinanceNews } from "./newsService";
 import { sendNewsToML } from "./mlService";
 import { connectDB } from "./mongodb";
-import News from "../../models/News";
+import News from "../models/News";
 
 export async function runNewsPipeline() {
   try {
