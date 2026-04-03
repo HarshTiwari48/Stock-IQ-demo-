@@ -1,36 +1,31 @@
-import NewsAPI from "newsapi";
-
-const NEWS_API_KEY = process.env.NEWS_API_KEY!;
-
-const newsapi = new NewsAPI(NEWS_API_KEY);
-
 export async function fetchFinanceNews() {
   try {
-    const today = new Date();
-    const threeDaysAgo = new Date();
+    const fromDate = new Date(
+      Date.now() - 3 * 24 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .split("T")[0];
 
-    threeDaysAgo.setDate(today.getDate() - 3);
-
-    const toDate = today.toISOString().split("T")[0];
-    const fromDate = threeDaysAgo.toISOString().split("T")[0];
+    const toDate = new Date()
+      .toISOString()
+      .split("T")[0];
 
     const query = `
-      ("Nifty 50" OR Sensex OR "Indian stock market"
-      OR NSE OR BSE OR Reliance OR Tata
-      OR HDFC OR Infosys OR ICICI
-      OR ITC OR Maruti)
+      "Nifty" OR "Sensex" OR "NSE" OR "BSE" OR "Reliance" OR "Tata" 
+      OR "Infosys" OR "HDFC" OR "ICICI" OR "ITC" OR "Maruti" OR "banking" OR "stocks" OR "Crude oil" OR "Pharma" OR "Profit" OR "Market"
     `;
 
-    const response = await newsapi.v2.everything({
-      q: query,
-      from: fromDate,
-      to: toDate,
-      sortBy: "publishedAt",
-      language: "en",
-      pageSize: 50,
-    });
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
+      query
+    )}&from=${fromDate}&to=${toDate}&sortBy=publishedAt&language=en&pageSize=50&apiKey=${process.env.NEWS_API_KEY}`;
 
-    return response.articles
+    const response = await fetch(url);
+
+    const data = await response.json();
+
+    console.log("Fetched articles:", data.articles?.length);
+
+    return data.articles
       .filter(
         (article: any) =>
           article.title &&
@@ -43,15 +38,13 @@ export async function fetchFinanceNews() {
         source: article.source?.name || "Unknown",
         title: article.title,
         description: article.description,
-
         source_url: article.url,
         image_url: article.urlToImage,
-
         author: article.author,
         published_at: article.publishedAt,
       }));
   } catch (error) {
-    console.error(error);
+    console.error("News fetch failed:", error);
     throw error;
   }
 }

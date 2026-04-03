@@ -20,25 +20,45 @@ export async function runNewsPipeline() {
 
     // Step 3: merge fetched data + ML output
     const mergedNews = fetchedNews.map((article, index) => {
-      const analysis = mlResult[index];
+  const analysis = mlResult[index];
 
-      return {
-        article_id: article.article_id,
-        date: article.date,
-        source: article.source,
-        title: article.title,
-        description: article.description,
+  const impactedDomains =
+    analysis?.ai_analysis?.impacted_domains || [];
 
-        source_url: article.source_url,
-        image_url: article.image_url,
+  const firstDomain = impactedDomains[0] || null;
+  const firstStock = firstDomain?.stocks?.[0] || null;
 
-        author: article.author,
-        published_at: article.published_at,
+  return {
+    article_id: article.article_id,
+    date: article.date,
+    source: article.source,
+    title: article.title,
+    description: article.description,
 
-        impacted_domains:
-          analysis?.ai_analysis?.impacted_domains || [],
-      };
-    });
+    sourceUrl: article.source_url,
+    imageUrl: article.image_url,
+
+    author: article.author,
+    publishedAt: article.published_at,
+
+    // UI-friendly flat fields
+    domain: firstDomain?.domain || "General Market",
+    stocks: impactedDomains.flatMap(
+      (domain: any) =>
+        domain.stocks?.map((stock: any) => stock.ticker) || []
+    ),
+
+    signal: firstStock?.signal || "HOLD",
+    confidence_score:
+      firstStock?.confidence_score || 0,
+
+    rsi: firstStock?.data?.rsi ?? null,
+    macd: firstStock?.data?.macd ?? null,
+
+    // Keep full ML response for detailed modal
+    impacted_domains: impactedDomains,
+  };
+});
 
     // Step 4: store in MongoDB
     for (const article of mergedNews) {

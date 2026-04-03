@@ -2,7 +2,7 @@ import mongoose, { Schema, model, models } from "mongoose";
 
 const NewsSchema = new Schema(
   {
-    headline: {
+    title: {
       type: String,
       required: true,
       trim: true,
@@ -20,6 +20,13 @@ const NewsSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+      
     },
 
     signal: {
